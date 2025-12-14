@@ -40,6 +40,20 @@ lazy_static! {
         OpCode::new(0xa1, "LDA", 2, 6, AddressingMode::Indirect_X),
         OpCode::new(0xb1, "LDA", 2, 5, AddressingMode::Indirect_Y),
 
+        // LDX
+        OpCode::new(0xA2, "LDX", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xA6, "LDX", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xB6, "LDX", 2, 4, AddressingMode::ZeroPage_Y),
+        OpCode::new(0xAE, "LDX", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0xBE, "LDX", 3, 4, AddressingMode::Absolute_Y),
+
+        // LDY
+        OpCode::new(0xA0, "LDY", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xA4, "LDY", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xB4, "LDY", 2, 4, AddressingMode::ZeroPage_X),
+        OpCode::new(0xAC, "LDY", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0xBC, "LDY", 3, 4, AddressingMode::Absolute_X),
+
         // STA
         OpCode::new(0x85, "STA", 2, 3, AddressingMode::ZeroPage),
         OpCode::new(0x95, "STA", 2, 4, AddressingMode::ZeroPage_X),
@@ -70,10 +84,61 @@ lazy_static! {
         OpCode::new(0x90, "BCC", 2, 2, AddressingMode::NoneAddressing),
         OpCode::new(0xB0, "BCS", 2, 2, AddressingMode::NoneAddressing),
         OpCode::new(0xf0, "BEQ", 2, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x30, "BMI", 2, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0xD0, "BNE", 2, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x10, "BPL", 2, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x50, "BVC", 2, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x70, "BVS", 2, 2, AddressingMode::NoneAddressing),
 
         // BIT
         OpCode::new(0x24, "BIT", 2, 3, AddressingMode::ZeroPage),
         OpCode::new(0x2C, "BIT", 3, 4, AddressingMode::Absolute),
+
+        // Clear
+        OpCode::new(0x18, "CLC", 1, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0xD8, "CLD", 1, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x58, "CLI", 1, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0xB8, "CLV", 1, 2, AddressingMode::NoneAddressing),
+
+        // CMP
+        OpCode::new(0xC9, "CMP", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xC5, "CMP", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0xD5, "CMP", 2, 4, AddressingMode::ZeroPage_X),
+        OpCode::new(0xCD, "CMP", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0xDD, "CMP", 3, 4, AddressingMode::Absolute_X),
+        OpCode::new(0xD9, "CMP", 3, 4, AddressingMode::Absolute_Y),
+        OpCode::new(0xC1, "CMP", 2, 6, AddressingMode::Indirect_X),
+        OpCode::new(0xD1, "CMP", 2, 5, AddressingMode::Indirect_Y),
+
+        // CPX
+        OpCode::new(0xE0, "CPX", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xE4, "CPX", 2, 2, AddressingMode::ZeroPage),
+        OpCode::new(0xEC, "CPX", 2, 2, AddressingMode::Absolute),
+
+        // CPY
+        OpCode::new(0xC0, "CPY", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0xC4, "CPY", 2, 2, AddressingMode::ZeroPage),
+        OpCode::new(0xCC, "CPY", 2, 2, AddressingMode::Absolute),
+
+        // DEC
+        OpCode::new(0xC6, "DEC", 2, 5,AddressingMode::ZeroPage),
+        OpCode::new(0xD6, "DEC", 2, 6,AddressingMode::ZeroPage_X),
+        OpCode::new(0xCE, "DEC", 2, 6,AddressingMode::Absolute),
+        OpCode::new(0xDE, "DEC", 2, 7,AddressingMode::Absolute_X),
+
+        // Decrement Register
+        OpCode::new(0xCA, "DEX", 1, 2, AddressingMode::NoneAddressing),
+        OpCode::new(0x88, "DEY", 1, 2, AddressingMode::NoneAddressing),
+
+        // EOR
+        OpCode::new(0x49, "EOR", 2, 2, AddressingMode::Immediate),
+        OpCode::new(0x45, "EOR", 2, 3, AddressingMode::ZeroPage),
+        OpCode::new(0x55, "EOR", 2, 4, AddressingMode::ZeroPage_X),
+        OpCode::new(0x4D, "EOR", 3, 4, AddressingMode::Absolute),
+        OpCode::new(0x5D, "EOR", 3, 4, AddressingMode::Absolute_X),
+        OpCode::new(0x59, "EOR", 3, 4, AddressingMode::Absolute_Y),
+        OpCode::new(0x41, "EOR", 2, 6, AddressingMode::Indirect_X),
+        OpCode::new(0x51, "EOR", 2, 5, AddressingMode::Indirect_Y),
     ];
 
     pub static ref OPCODES_MAP: HashMap<u8, &'static OpCode> = {

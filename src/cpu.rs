@@ -193,6 +193,19 @@ impl CPU {
         }
     }
 
+    fn compare(&mut self, mode: &AddressingMode, compared_with: u8) {
+        let addr = self.get_operand_address(mode);
+        let data = self.mem_read(addr);
+
+        if data >= compared_with {
+            self.status.insert(CpuFlags::CARRY);
+        } else {
+            self.status.remove(CpuFlags::CARRY);
+        }
+
+        self.update_zero_and_negative_flags(compared_with.wrapping_sub(data));
+    }
+
     #[allow(dead_code)]
     fn adc(&mut self) {}
 
@@ -244,12 +257,59 @@ impl CPU {
         self.status.set(CpuFlags::OVERFLOW, data & 0b01000000 > 0);
     }
 
+    fn dec(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let data = self.mem_read(addr);
+
+        let data = data.wrapping_sub(1);
+
+        self.mem_write(addr, data);
+        self.update_zero_and_negative_flags(data);
+    }
+
+    fn dex(&mut self) {
+        self.register_x = self.register_x.wrapping_sub(1);
+
+        self.update_zero_and_negative_flags(self.register_x);
+    }
+
+    fn dey(&mut self) {
+        self.register_y = self.register_y.wrapping_sub(1);
+
+        self.update_zero_and_negative_flags(self.register_y);
+    }
+
+    fn eor(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let data = self.mem_read(addr);
+
+        self.register_a = data ^ self.register_a;
+
+        self.update_zero_and_negative_flags(self.register_a);
+    }
+
     fn lda(&mut self, mode: &AddressingMode) {
         let addr = self.get_operand_address(mode);
         let value = self.mem_read(addr);
 
         self.register_a = value;
         self.update_zero_and_negative_flags(self.register_a);
+    }
+
+    fn ldx(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let value = self.mem_read(addr);
+
+        self.register_x = value;
+        self.update_zero_and_negative_flags(self.register_x);
+    }
+
+    fn ldy(&mut self, mode: &AddressingMode) {
+        let addr = self.get_operand_address(mode);
+        let value = self.mem_read(addr);
+
+        self.register_y = value;
+        self.update_zero_and_negative_flags(self.register_y);
     }
 
     fn sta(&mut self, mode: &AddressingMode) {
@@ -285,6 +345,16 @@ impl CPU {
                     self.lda(&opcode.mode);
                 }
 
+                // LDX
+                0xa2 | 0xa6 | 0xb6 | 0xae | 0xbe => {
+                    self.ldx(&opcode.mode);
+                }
+
+                // LDY
+                0xa0 | 0xa4 | 0xb4 | 0xac | 0xbc => {
+                    self.ldy(&opcode.mode);
+                }
+
                 // STA
                 0x85 | 0x95 | 0x8d | 0x9d | 0x99 | 0x81 | 0x91 => {
                     self.sta(&opcode.mode);
@@ -311,9 +381,67 @@ impl CPU {
                 // BEQ
                 0xf0 => self.branch(self.status.contains(CpuFlags::ZERO)),
 
+                // BNE
+                0xD0 => self.branch(!self.status.contains(CpuFlags::ZERO)),
+
+                // BMI
+                0x30 => self.branch(self.status.contains(CpuFlags::NEGATIV)),
+
+                // BPL
+                0x10 => self.branch(!self.status.contains(CpuFlags::NEGATIV)),
+
+                // BVC
+                0x50 => self.branch(!self.status.contains(CpuFlags::OVERFLOW)),
+
+                // BVS
+                0x70 => self.branch(self.status.contains(CpuFlags::OVERFLOW)),
+
                 // BIT
                 0x24 | 0x2c => {
                     self.bit(&opcode.mode);
+                }
+
+                // CLC
+                0x18 => self.status.remove(CpuFlags::CARRY),
+
+                // CLD
+                0xD8 => self.status.remove(CpuFlags::DECIMAL_MODE),
+
+                // CLI
+                0x58 => self.status.remove(CpuFlags::INTERRUPT_DISABLE),
+
+                // CLV
+                0xB8 => self.status.remove(CpuFlags::OVERFLOW),
+
+                // CMP
+                0xC9 | 0xC5 | 0xD5 | 0xCD | 0xDD | 0xD9 | 0xC1 | 0xD1 => {
+                    self.compare(&opcode.mode, self.register_a);
+                }
+
+                // CPX
+                0xE0 | 0xE4 | 0xEC => {
+                    self.compare(&opcode.mode, self.register_x);
+                }
+
+                // CPY
+                0xC0 | 0xC4 | 0xCC => {
+                    self.compare(&opcode.mode, self.register_y);
+                }
+
+                // DEC
+                0xC6 | 0xD6 | 0xCE | 0xDE => {
+                    self.dec(&opcode.mode);
+                }
+
+                // DEX
+                0xCA => self.dex(),
+
+                // DEY
+                0x88 => self.dey(),
+
+                // EOR
+                0x49 | 0x45 | 0x55 | 0x4D | 0x5D | 0x59 | 0x41 | 0x51 => {
+                    self.eor(&opcode.mode);
                 }
 
                 // TAX
